@@ -206,13 +206,12 @@ class GraphAPI(object):
             while url:
                 result, url = load(method, url, data)
 
-                # If number of results is smaller than the limit parameter passed, there's no need to query an extra page
-                if url:
-                    query = parse_qs(urlparse(url).query)
-                    if 'limit' in query:
-                        limit = int(query['limit'][0])
-                        if len(result['data']) < limit:
-                            url = None
+                #Check if there are any further pages to query
+                if 'paging' in result:
+                    if 'next' not in result['paging'].keys():
+                        url = None
+                else:
+                    url = None
 
                 # Reset pagination parameters.
                 for key in ['offset', 'until', 'since']:
